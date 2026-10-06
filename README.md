@@ -15,6 +15,11 @@ Code repository for the **EngineerInAI YouTube series** — building a loan appr
 | EP07 — @AchievesGoal | `ep07-goal` | Complete agent end to end |
 | EP08 — Testing | `ep08-testing` | Unit tests without calling a real LLM |
 
+## 🎞️ Slide Decks
+
+All episode slide decks are in the [`slides/`](slides/) folder.
+Open [`slides/index.html`](slides/index.html) locally to browse all episodes.
+
 ## 🚀 Quick Start
 
 ```bash
