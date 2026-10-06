@@ -19,7 +19,7 @@ Code repository for the **EngineerInAI YouTube series** — building a loan appr
 
 ```bash
 # Clone the repo
-git clone https://github.com/sumitvairagar/embabel-series
+git clone https://github.com/sumitvairagar/embabel-loan-agent
 
 # Checkout a specific episode
 git checkout ep04-first-action
