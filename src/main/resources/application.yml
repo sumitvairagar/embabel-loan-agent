@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: embabel-loan-agent
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+
+embabel:
+  agent:
+    platform:
+      log-prompts: false
+      log-responses: false
+
+logging:
+  level:
+    com.embabel: INFO
