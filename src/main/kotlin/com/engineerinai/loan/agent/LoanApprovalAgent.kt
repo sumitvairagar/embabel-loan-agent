@@ -6,24 +6,18 @@ import com.embabel.agent.api.common.Ai
 import com.embabel.agent.domain.io.UserInput
 import com.engineerinai.loan.domain.CreditScore
 import com.engineerinai.loan.domain.LoanApplication
+import com.engineerinai.loan.domain.RiskAssessment
 
 /**
  * Loan approval agent — built step by step across the series.
  *
- * EP04: First @Action only — evaluateCredit
- * EP06: Second @Action added — assessRisk
+ * EP04: extractApplication + evaluateCredit
+ * EP06: assessRisk added — planner now chains all three automatically
  * EP07: @AchievesGoal added — generateDecision (completes the agent)
  */
 @Agent(description = "Processes loan applications and produces a credit decision")
 class LoanApprovalAgent {
 
-    /**
-     * Action 1: Extract a structured LoanApplication from free text.
-     *
-     * The LLM reads the user's message and fills in the LoanApplication
-     * data class. No parsing code needed — Embabel generates the JSON
-     * schema from the data class and instructs the LLM to populate it.
-     */
     @Action
     fun extractApplication(userInput: UserInput, ai: Ai): LoanApplication =
         ai.withDefaultLlm().createObject(
@@ -35,12 +29,6 @@ class LoanApprovalAgent {
             """.trimIndent()
         )
 
-    /**
-     * Action 2: Evaluate the applicant's credit.
-     *
-     * Takes LoanApplication from the blackboard (written by extractApplication).
-     * The planner sequences these automatically — no ordering code needed.
-     */
     @Action
     fun evaluateCredit(application: LoanApplication, ai: Ai): CreditScore =
         ai.withDefaultLlm().createObject(
@@ -53,6 +41,37 @@ class LoanApprovalAgent {
             
             Assign a credit score (300–900), a rating (Excellent/Good/Fair/Poor),
             and list 2-3 key factors that influenced the score.
+            """.trimIndent()
+        )
+
+    /**
+     * Action 3: Assess the risk of approving this loan.
+     *
+     * Takes BOTH LoanApplication and CreditScore from the blackboard.
+     * The planner ensures both are available before running this action —
+     * extractApplication and evaluateCredit must run first.
+     *
+     * You wrote zero ordering code. The planner inferred: 
+     * extractApplication → evaluateCredit → assessRisk
+     */
+    @Action
+    fun assessRisk(
+        application: LoanApplication,
+        score: CreditScore,
+        ai: Ai,
+    ): RiskAssessment =
+        ai.withDefaultLlm().createObject(
+            """
+            Assess the risk of approving this loan.
+            
+            Applicant: ${application.applicantName}
+            Loan amount: ₹${application.amount}
+            Purpose: ${application.purpose}
+            Credit score: ${score.score} (${score.rating})
+            Credit factors: ${score.factors.joinToString(", ")}
+            
+            Determine: approved (true/false), risk level (Low/Medium/High),
+            and the main reason for the decision.
             """.trimIndent()
         )
 }
