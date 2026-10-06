@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP01 — What is Embabel?</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01: Series brand opener -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="anim">
+          <div class="series-tag">EngineerInAI</div>
+          <h1>Building <span class="blue">AI Agents</span><br>on the <span class="orange">JVM</span></h1>
+        </div>
+        <p class="subtitle anim">A Java/Spring developer learning Embabel in public.<br>Real code. Real mistakes. Every step documented.</p>
+        <div class="tags anim">
+          <span class="tag blue">Kotlin</span>
+          <span class="tag blue">Spring Boot</span>
+          <span class="tag orange">AI Agents</span>
+          <span class="tag green">Open Source</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02: Series roadmap -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Series</div>
+        <h2 class="anim">8 episodes. One real project. <span class="blue">Built from scratch.</span></h2>
+        <div class="roadmap anim">
+          <div class="roadmap-item current">
+            <div class="roadmap-ep">EP 01</div>
+            <div class="roadmap-title">What is Embabel — why Java devs should care</div>
+            <div class="roadmap-status current">▶ Now</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 02</div>
+            <div class="roadmap-title">Project setup — Spring Boot + Embabel in 5 minutes</div>
+            <div class="roadmap-status upcoming">Next</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 03</div>
+            <div class="roadmap-title">Domain model — Kotlin data classes explained</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 04</div>
+            <div class="roadmap-title">Your first @Action — LLM call with zero boilerplate</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 05</div>
+            <div class="roadmap-title">The Blackboard — how agents share data between steps</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 06–08</div>
+            <div class="roadmap-title">Chaining → Goal → Testing → Contribute to open source</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: The problem -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Problem</div>
+        <h2 class="anim">Every AI tutorial is <span class="orange">Python.</span><br>You are a <span class="blue">Java developer.</span></h2>
+        <p class="anim">LangChain, LlamaIndex, CrewAI — all Python. If you want to build AI agents on your existing Spring Boot codebase, you're told: <em>learn Python first, then come back.</em> That's wrong.</p>
+        <div class="card-grid cols-3 anim">
+          <div class="card red">
+            <div class="card-label">Python ecosystem</div>
+            <div class="card-desc dark">LangChain, LlamaIndex, CrewAI — great tools, wrong language for your stack</div>
+          </div>
+          <div class="card red">
+            <div class="card-label">Spring AI alone</div>
+            <div class="card-desc dark">Great for single LLM calls. No planning. No sequencing. You write all the flow logic.</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">Embabel</div>
+            <div class="card-desc dark">Kotlin + Spring Boot. GOAP planning. Zero flow control code. Built for the JVM.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: What is Embabel -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Answer</div>
+        <h2 class="anim">Spring AI gives you the <span class="orange">HTTP call.</span><br>Embabel gives you the <span class="blue">brain.</span></h2>
+        <table class="compare anim">
+          <thead><tr><th>Layer</th><th>What it does</th><th>Analogy</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Spring AI</td>
+              <td>Makes a single HTTP call to OpenAI / Anthropic / Gemini</td>
+              <td class="blue">Servlet API</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent);font-weight:700">Embabel</td>
+              <td>Plans which actions to run, in what order, using which model</td>
+              <td class="blue">Spring MVC</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout anim">
+          <strong>Created by Rod Johnson</strong> — the same person who created the original Spring Framework in 2002. 4.5k GitHub stars. On Maven Central. This is not a weekend project.
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: What we're building -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">This Series</div>
+        <h2 class="anim">We build a <span class="orange">Loan Approval Agent</span><br>from zero to running.</h2>
+        <p class="anim">A user types: <em>"My name is Sumit, I need a home loan of 25 lakh"</em></p>
+        <div class="flow anim">
+          <div class="flow-box blue">
+            <div class="flow-label">Input</div>
+            <div class="flow-name">UserInput</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 1</div>
+            <div class="flow-name">Extract</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 2</div>
+            <div class="flow-name">Credit Check</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 3</div>
+            <div class="flow-name">Risk Assessment</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box green">
+            <div class="flow-label">Goal ✓</div>
+            <div class="flow-name">Loan Decision</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          <strong>You write zero ordering logic.</strong> No "first do A then B then C." The planner figures out the sequence from your method signatures alone. We'll prove this live.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: Why now -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Why Now</div>
+        <h2 class="anim">This is where <span class="blue">Spring Boot</span> was in <span class="orange">2013.</span></h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge">1</div>
+            <div class="num-text"><strong>You become rare immediately.</strong> People who can implement Embabel in production Spring Boot number in the hundreds globally. Every bank and enterprise Java shop is about to need this.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">2</div>
+            <div class="num-text"><strong>Your existing knowledge carries over.</strong> <code>@Agent</code> works like <code>@Controller</code>. <code>@Action</code> works like <code>@RequestMapping</code>. Same Spring idioms, new capability.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">3</div>
+            <div class="num-text"><strong>You can contribute to open source today.</strong> The project is active. Issues are well-scoped. Maintainers review quickly. Your name in the contributor list is a career asset.</div>
+          </div>
+        </div>
+        <div class="callout green anim">
+          <strong>Code for this series:</strong> github.com/sumitvairagar/embabel-loan-agent — every episode has its own branch. Clone it, run it, break it.
+        </div>
+      </div>
+    </div>
+
+    <!-- 07: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <div class="anim">
+          <div class="series-tag">EngineerInAI — Embabel Series</div>
+          <h2>Next: <span class="blue">EP02</span><br>Project setup in 5 minutes.</h2>
+        </div>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep02-setup</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 7</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

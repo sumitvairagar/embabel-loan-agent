@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP04 — First @Action</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 04</div>
+        <h1 class="anim">Your First <span class="blue">@Action</span></h1>
+        <p class="subtitle anim">An LLM call with typed input and typed output. No boilerplate.</p>
+      </div>
+    </div>
+
+    <!-- 02: @Agent annotation -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Container</div>
+        <h2 class="anim"><code>@Agent</code> — marks the class, <span class="blue">Spring does the rest</span></h2>
+        <div class="code-block anim"><span class="an">@Agent</span>(<span class="str">description = "Processes loan applications and produces a credit decision"</span>)
+<span class="kw">class</span> <span class="type">LoanApprovalAgent</span> {
+    <span class="cm">// your @Action methods go here</span>
+}</div>
+        <div class="card-grid cols-3 anim">
+          <div class="card blue">
+            <div class="card-label">@Agent</div>
+            <div class="card-desc dark">Marks this as an agent. Spring auto-discovers it via classpath scan — same as @Controller.</div>
+          </div>
+          <div class="card">
+            <div class="card-label">description</div>
+            <div class="card-desc dark">Required. Used by the platform in open mode to match user intent to the right agent.</div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">Spring bean</div>
+            <div class="card-desc dark">@Agent includes @Component. You can @Autowired any Spring service into this class.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: @Action signature -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Action</div>
+        <h2 class="anim"><code>@Action</code> — declare what you <span class="blue">need</span> and what you <span class="green">produce</span></h2>
+        <div class="code-block anim"><span class="an">@Action</span>
+<span class="kw">fun</span> <span class="fn">evaluateCredit</span>(
+    application: <span class="type">LoanApplication</span>,   <span class="cm">// ← framework reads FROM blackboard</span>
+    ai: <span class="type">Ai</span>                            <span class="cm">// ← framework injects (NOT from blackboard)</span>
+): <span class="type">CreditScore</span> =                     <span class="cm">// ← framework writes TO blackboard</span>
+    ai.withDefaultLlm() <span class="kw">create</span>
+        <span class="str">"""
+        Evaluate the credit profile for this loan application.
+        Applicant: ${application.applicantName}
+        Amount: ₹${application.amount}
+        Purpose: ${application.purpose}
+        
+        Return: score (300–900), rating, and key factors.
+        """</span>.trimIndent()</div>
+        <div class="callout orange anim">
+          <strong>Kotlin note:</strong> The triple-quoted <code>"""..."""</code> is a multiline string — no concatenation, no escape characters needed. <code>${variable}</code> inside it is string interpolation — like Java's formatted strings but cleaner.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: How the LLM call works -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Under the Hood</div>
+        <h2 class="anim">What happens when <span class="blue">this action runs</span></h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge">1</div>
+            <div class="num-text"><strong>Schema generation.</strong> Embabel reflects on <code>CreditScore</code> (your return type) and generates a JSON Schema from it — including your <code>@JsonPropertyDescription</code> hints.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">2</div>
+            <div class="num-text"><strong>Prompt assembly.</strong> Your prompt text + the JSON schema get combined into the final message sent to the LLM: "respond with JSON matching this schema."</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">3</div>
+            <div class="num-text"><strong>LLM call.</strong> Spring AI makes the HTTP call to OpenAI. The response comes back as JSON.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">4</div>
+            <div class="num-text"><strong>Deserialization.</strong> Jackson parses the JSON into a <code>CreditScore</code> object. Your method returns a strongly-typed Kotlin object — not a Map, not a String.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: run it -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Demo</div>
+        <h2 class="anim">Run it from the <span class="blue">Spring Shell</span></h2>
+        <div class="terminal anim"><span class="prompt">shell:></span> execute <span class="str">"My name is Sumit, I need a home loan of 25 lakh"</span>
+
+<span class="step">[extractApplication]</span> UserInput → LoanApplication
+<span class="info">  applicantName = "Sumit"</span>
+<span class="info">  amount        = 2500000</span>
+<span class="info">  purpose       = "home"</span>
+
+<span class="step">[evaluateCredit]</span> LoanApplication → CreditScore
+<span class="info">  score   = 730</span>
+<span class="info">  rating  = "Good"</span>
+<span class="info">  factors = [stable employment, low existing debt]</span></div>
+        <div class="callout green anim">
+          The planner ran <strong>extractApplication</strong> first automatically — because <strong>evaluateCredit</strong> needs a <code>LoanApplication</code> and the only way to get one is to extract it from the user input first. You wrote zero ordering code.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP05</span><br>The Blackboard — see the data flow live.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep05-blackboard</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

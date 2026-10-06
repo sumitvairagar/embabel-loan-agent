@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP07 — @AchievesGoal</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 07</div>
+        <h1 class="anim"><span class="orange">@AchievesGoal</span></h1>
+        <p class="subtitle anim">The finish line. When this runs, the agent is done.</p>
+      </div>
+    </div>
+
+    <!-- 02: what is a goal -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Concept</div>
+        <h2 class="anim">A Goal is the <span class="blue">desired end state</span></h2>
+        <p class="anim">The GOAP planner doesn't just run actions — it works <em>toward a goal.</em> A goal says: "we're done when this type of object exists on the Blackboard." Without a goal, the planner has nothing to work toward.</p>
+        <div class="card-grid cols-3 anim">
+          <div class="card">
+            <div class="card-label">outputType</div>
+            <div class="card-desc dark">The type that must exist on the Blackboard when we're done — <code>LoanDecision</code></div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">description</div>
+            <div class="card-desc dark">Used in open mode — the platform matches user intent to goals by description</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">@AchievesGoal</div>
+            <div class="card-desc dark">Shortcut annotation — creates the Goal automatically from the method's return type</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: the annotation -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Code</div>
+        <h2 class="anim">Two annotations. <span class="blue">Complete agent.</span></h2>
+        <div class="code-block anim"><span class="an">@AchievesGoal</span>(<span class="str">description = "Produce a final loan decision for the applicant"</span>)
+<span class="an">@Action</span>
+<span class="kw">fun</span> <span class="fn">generateDecision</span>(
+    application: <span class="type">LoanApplication</span>,
+    assessment: <span class="type">RiskAssessment</span>,
+    ai: <span class="type">Ai</span>,
+): <span class="type">LoanDecision</span> =              <span class="cm">// ← when this hits the Blackboard, agent is done</span>
+    ai.withDefaultLlm() <span class="kw">create</span>
+        <span class="str">"""
+        Generate a final loan decision letter.
+        Applicant: ${application.applicantName}
+        Amount: ₹${application.amount}
+        Risk: ${assessment.riskLevel}, approved=${assessment.approved}
+        
+        Write a clear decision, friendly message, and 2-3 next steps.
+        """</span>.trimIndent()</div>
+        <div class="callout orange anim">
+          <code>@AchievesGoal</code> + <code>@Action</code> together = this method is both a step in the plan AND the finish line. When <code>LoanDecision</code> appears on the Blackboard, the OODA loop exits.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: full flow -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Complete Agent</div>
+        <h2 class="anim">4 actions. <span class="orange">Zero</span> flow control.</h2>
+        <div class="flow anim">
+          <div class="flow-box blue">
+            <div class="flow-label">Start</div>
+            <div class="flow-name">UserInput</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 1</div>
+            <div class="flow-name">extract<br>Application</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 2</div>
+            <div class="flow-name">evaluate<br>Credit</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-label">Action 3</div>
+            <div class="flow-name">assess<br>Risk</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box green">
+            <div class="flow-label">Goal ✓</div>
+            <div class="flow-name">generate<br>Decision</div>
+          </div>
+        </div>
+        <div class="callout green anim">
+          The entire agent is 4 annotated methods in one class. No XML. No YAML pipeline. No state machine. Just Kotlin methods with annotations — and the planner does the rest.
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: final output -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Live Demo</div>
+        <h2 class="anim">The complete agent <span class="blue">running live</span></h2>
+        <div class="terminal anim"><span class="prompt">shell:></span> execute <span class="str">"My name is Sumit, I need a home loan of 25 lakh"</span>
+
+<span class="step">[extractApplication]</span>  ✓
+<span class="step">[evaluateCredit]</span>      ✓
+<span class="step">[assessRisk]</span>          ✓
+<span class="step">[generateDecision]</span>    ✓  <span class="success">GOAL ACHIEVED</span>
+
+<span class="success">╔══════════════════════════════╗</span>
+<span class="success">║      LOAN DECISION RESULT    ║</span>
+<span class="success">║ Decision: ✅ APPROVED         ║</span>
+<span class="success">║ Congratulations Sumit! Your  ║</span>
+<span class="success">║ home loan has been approved. ║</span>
+<span class="success">║ Next: Submit income proof    ║</span>
+<span class="success">╚══════════════════════════════╝</span></div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP08</span><br>Unit testing — no real LLM needed.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep08-testing</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Embabel Series — Slide Decks</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F9FC;--surface:#FFFFFF;--surface2:#EEF2F8;
+  --border:#D4DEF0;--accent:#1D6FE8;--accent2:#E07B20;
+  --green:#1B9E6E;--text:#0F1C33;--muted:#5A6E8C;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;min-height:100vh;padding:48px 40px}
+.header{max-width:900px;margin:0 auto 48px;display:flex;flex-direction:column;gap:12px}
+.logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff}
+.series-tag{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2)}
+h1{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1.5px;line-height:1.1}
+h1 span{color:var(--accent)}
+.subtitle{font-size:15px;color:var(--muted);line-height:1.6;max-width:600px}
+.github-link{display:inline-flex;align-items:center;gap:8px;background:var(--text);color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;width:fit-content}
+.github-link:hover{opacity:.85}
+
+.grid{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:var(--text);transition:border-color .15s,box-shadow .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(29,111,232,.12)}
+
+.ep-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+.ep-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.card-title{font-size:17px;font-weight:700;line-height:1.3}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.55}
+.card-branch{font-size:11px;font-weight:600;color:var(--muted);font-family:"SF Mono","Fira Code",monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;width:fit-content}
+.open-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;margin-top:4px;width:fit-content}
+
+.divider{max-width:900px;margin:40px auto 32px;height:1px;background:var(--border)}
+.footer{max-width:900px;margin:0 auto;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">E</div>
+  <div class="series-tag">EngineerInAI</div>
+  <h1>Building <span>AI Agents</span> on the JVM</h1>
+  <p class="subtitle">Slide decks for the Embabel series. Open any episode below. Use ← → or Space to navigate slides.</p>
+  <a class="github-link" href="https://github.com/sumitvairagar/embabel-loan-agent" target="_blank">
+    ⬡ github.com/sumitvairagar/embabel-loan-agent
+  </a>
+</div>
+
+<div class="grid">
+
+  <a class="card" href="ep01-intro/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 01</div>
+    <div class="card-title">What is Embabel?</div>
+    <div class="card-desc">Why Java developers should care. Spring AI vs Embabel. The loan agent we're building.</div>
+    <div class="card-branch">branch: ep01-intro</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep02-setup/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 02</div>
+    <div class="card-title">Project Setup</div>
+    <div class="card-desc">pom.xml, application.yml, main class. Spring Boot + Embabel running in 5 minutes.</div>
+    <div class="card-branch">branch: ep02-setup</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep03-domain-model/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 03</div>
+    <div class="card-title">Domain Model</div>
+    <div class="card-desc">Kotlin data classes explained. Design the data first, then the actions.</div>
+    <div class="card-branch">branch: ep03-domain-model</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep04-first-action/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 04</div>
+    <div class="card-title">Your First @Action</div>
+    <div class="card-desc">@Agent, @Action, typed LLM calls. An LLM call with zero boilerplate.</div>
+    <div class="card-branch">branch: ep04-first-action</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep05-blackboard/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 05</div>
+    <div class="card-title">The Blackboard</div>
+    <div class="card-desc">The agent's shared memory. Append-only. See the data flow live with BlackboardLogger.</div>
+    <div class="card-branch">branch: ep05-blackboard</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep06-chaining/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 06</div>
+    <div class="card-title">Chaining Actions</div>
+    <div class="card-desc">Add assessRisk. The planner chains all three actions automatically. Zero ordering code.</div>
+    <div class="card-branch">branch: ep06-chaining</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep07-goal/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 07</div>
+    <div class="card-title">@AchievesGoal</div>
+    <div class="card-desc">The finish line. Complete the agent end to end. See the full loan decision output.</div>
+    <div class="card-branch">branch: ep07-goal</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+  <a class="card" href="ep08-testing/index.html">
+    <div class="ep-badge"><div class="dot"></div>Episode 08</div>
+    <div class="card-title">Unit Testing</div>
+    <div class="card-desc">FakeOperationContext. Test prompts without calling a real LLM. Zero cost, zero network.</div>
+    <div class="card-branch">branch: ep08-testing</div>
+    <div class="open-btn">▶ Open slides</div>
+  </a>
+
+</div>
+
+<div class="divider"></div>
+<div class="footer">
+  EngineerInAI — Embabel Series &nbsp;·&nbsp;
+  <a href="https://github.com/sumitvairagar/embabel-loan-agent" style="color:var(--accent)">GitHub</a> &nbsp;·&nbsp;
+  <a href="https://github.com/embabel/embabel-agent" style="color:var(--accent)">Embabel Framework</a>
+</div>
+
+</body>
+</html>

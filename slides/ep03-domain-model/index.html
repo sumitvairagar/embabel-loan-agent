@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP03 — Domain Model</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 03</div>
+        <h1 class="anim">Domain <span class="blue">Model</span></h1>
+        <p class="subtitle anim">The data classes that flow through your agent. Where every agent starts.</p>
+      </div>
+    </div>
+
+    <!-- 02: What is a domain model -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Concept</div>
+        <h2 class="anim">Design the <span class="orange">data first,</span> then the actions.</h2>
+        <p class="anim">In Embabel, your domain classes are the contract between actions. Each action reads one type from the Blackboard and produces another. The domain model is what flows through the pipeline.</p>
+        <div class="flow anim">
+          <div class="flow-box blue">
+            <div class="flow-label">Input</div>
+            <div class="flow-name">UserInput</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-name">LoanApplication</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-name">CreditScore</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">
+            <div class="flow-name">RiskAssessment</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box green">
+            <div class="flow-label">Goal</div>
+            <div class="flow-name">LoanDecision</div>
+          </div>
+        </div>
+        <div class="callout anim">
+          Each arrow is one action. Each box is one data class. Design the boxes first — the actions write themselves.
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: data class explained -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Kotlin Concept</div>
+        <h2 class="anim"><code>data class</code> — <span class="blue">Kotlin's version of Java records</span></h2>
+        <div class="card-grid cols-2 anim">
+          <div class="card red">
+            <div class="card-label">Java (verbose)</div>
+            <div class="card-desc" style="font-family:monospace;font-size:12px;color:var(--text);line-height:1.6">public class CreditScore {<br>&nbsp;&nbsp;private final int score;<br>&nbsp;&nbsp;private final String rating;<br>&nbsp;&nbsp;// constructor...<br>&nbsp;&nbsp;// getters...<br>&nbsp;&nbsp;// equals/hashCode...<br>&nbsp;&nbsp;// toString...<br>} // ~40 lines</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">Kotlin (1 line)</div>
+            <div class="card-desc" style="font-family:monospace;font-size:13px;color:var(--text);line-height:1.6"><strong style="color:var(--green)">data class</strong> CreditScore(<br>&nbsp;&nbsp;val score: Int,<br>&nbsp;&nbsp;val rating: String,<br>&nbsp;&nbsp;val factors: List&lt;String&gt;<br>)<br><br>// equals ✓ hashCode ✓<br>// toString ✓ copy ✓</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          <strong>val</strong> = read-only after construction (like Java <code>final</code>). Every field in your domain classes should be <code>val</code> — immutable by default.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: Jackson annotations -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">LLM Hints</div>
+        <h2 class="anim">Jackson annotations help the <span class="blue">LLM fill in the fields</span></h2>
+        <div class="code-block anim"><span class="an">@JsonClassDescription</span>(<span class="str">"A loan application submitted by a customer"</span>)
+<span class="kw">data class</span> <span class="type">LoanApplication</span>(
+
+    <span class="an">@JsonPropertyDescription</span>(<span class="str">"Full name of the applicant"</span>)
+    <span class="kw">val</span> applicantName: <span class="type">String</span>,
+
+    <span class="an">@JsonPropertyDescription</span>(<span class="str">"Loan amount requested in rupees"</span>)
+    <span class="kw">val</span> amount: <span class="type">Int</span>,
+
+    <span class="an">@JsonPropertyDescription</span>(<span class="str">"Purpose: home, car, personal, business"</span>)
+    <span class="kw">val</span> purpose: <span class="type">String</span>,
+)</div>
+        <div class="callout anim">
+          Embabel generates a <strong>JSON Schema</strong> from your data class and sends it to the LLM. These descriptions become part of that schema — they tell the LLM exactly what to put in each field.
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: all 4 classes -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Our Domain Model</div>
+        <h2 class="anim">4 classes. The <span class="orange">entire agent</span> lives in these.</h2>
+        <div class="card-grid cols-2 anim">
+          <div class="card blue">
+            <div class="card-label">LoanApplication</div>
+            <div class="card-desc dark"><code>applicantName</code>, <code>amount</code>, <code>purpose</code><br>→ The starting input</div>
+          </div>
+          <div class="card">
+            <div class="card-label">CreditScore</div>
+            <div class="card-desc dark"><code>score</code> (300–900), <code>rating</code>, <code>factors</code><br>→ Produced by credit check</div>
+          </div>
+          <div class="card">
+            <div class="card-label">RiskAssessment</div>
+            <div class="card-desc dark"><code>approved</code>, <code>riskLevel</code>, <code>reason</code><br>→ Produced by risk check</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">LoanDecision</div>
+            <div class="card-desc dark"><code>approved</code>, <code>message</code>, <code>nextSteps</code><br>→ The Goal — agent is done</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          Notice: no business logic, no methods, no service calls. Just data. Actions are separate. This separation is what makes the system testable and composable.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP04</span><br>Your first @Action — LLM call, zero boilerplate.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep04-first-action</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

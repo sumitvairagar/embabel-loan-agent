@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP05 — The Blackboard</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 05</div>
+        <h1 class="anim">The <span class="blue">Blackboard</span></h1>
+        <p class="subtitle anim">The agent's shared memory. How data flows between every step.</p>
+      </div>
+    </div>
+
+    <!-- 02: What is it -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Concept</div>
+        <h2 class="anim">The Blackboard is an <span class="blue">append-only ordered list</span></h2>
+        <p class="anim">One blackboard per agent run. Every action reads from it and writes to it. Actions never pass data to each other directly — everything goes through the board.</p>
+        <div class="bb anim">
+          <div class="bb-header">blackboard.objects — after full agent run</div>
+          <div class="bb-row">
+            <div class="bb-idx">[0]</div>
+            <div class="bb-type blue">UserInput</div>
+            <div class="bb-val">content="My name is Sumit, I need a home loan of 25 lakh"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[1]</div>
+            <div class="bb-type">LoanApplication</div>
+            <div class="bb-val">applicantName="Sumit", amount=2500000, purpose="home"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[2]</div>
+            <div class="bb-type">CreditScore</div>
+            <div class="bb-val">score=730, rating="Good"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[3]</div>
+            <div class="bb-type">RiskAssessment</div>
+            <div class="bb-val">approved=true, riskLevel="Low"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[4]</div>
+            <div class="bb-type green">LoanDecision</div>
+            <div class="bb-val">approved=true, message="Congratulations..."</div>
+            <div class="bb-tag latest">latest ← Goal ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: append only -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Key Property</div>
+        <h2 class="anim"><span class="green">Append-only.</span> Objects are never deleted.</h2>
+        <p class="anim">If a fraud check re-evaluates credit and produces a new score, the old one stays — but becomes invisible to retrieval. The last one of each type wins.</p>
+        <div class="bb anim">
+          <div class="bb-header">after fraud check re-evaluation</div>
+          <div class="bb-row">
+            <div class="bb-idx">[0]</div>
+            <div class="bb-type blue">UserInput</div>
+            <div class="bb-val">...</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[1]</div>
+            <div class="bb-type muted">CreditScore</div>
+            <div class="bb-val">score=730 — original</div>
+            <div class="bb-tag old">hidden</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[2]</div>
+            <div class="bb-type orange">CreditScore</div>
+            <div class="bb-val">score=690 — after fraud check</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+        </div>
+        <div class="callout green anim">
+          <strong>Why keep the old one?</strong> Full audit trail. You can always see what changed during a run and when. The Blackboard is append-only by design.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: see it live -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Live Demo</div>
+        <h2 class="anim">The <span class="blue">BlackboardLogger</span> makes it visible</h2>
+        <div class="code-block anim"><span class="an">@Component</span>
+<span class="kw">class</span> <span class="type">BlackboardLogger</span> {
+
+    <span class="an">@EventListener</span>
+    <span class="kw">fun</span> <span class="fn">onActionStart</span>(event: <span class="type">ActionExecutionStartEvent</span>) {
+        <span class="kw">val</span> process = event.agentProcess
+        logger.info(<span class="str">"=== Blackboard before [{}] ==="</span>, event.action.name)
+        process.objects.forEachIndexed { index, obj ->
+            logger.info(<span class="str">"  [{}] {}: {}"</span>, index, obj::class.simpleName, obj)
+        }
+    }
+}</div>
+        <div class="terminal anim"><span class="step">=== Blackboard before [evaluateCredit] ===</span>
+<span class="info">  [0] UserInput: UserInput(content=My name is Sumit...)</span>
+<span class="info">  [1] LoanApplication: LoanApplication(applicantName=Sumit, amount=2500000...)</span>
+<span class="step">================================</span></div>
+      </div>
+    </div>
+
+    <!-- 05: why actions don't touch it -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Rule</div>
+        <h2 class="anim">Actions <span class="green">never touch</span> the Blackboard directly</h2>
+        <div class="card-grid cols-2 anim">
+          <div class="card red">
+            <div class="card-label">❌ You never write this</div>
+            <div class="card-desc" style="font-family:monospace;font-size:12px;color:var(--text);line-height:1.7">val app = blackboard<br>&nbsp;&nbsp;.last(LoanApplication::class.java)<br><br>blackboard += creditScore</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">✅ You write this instead</div>
+            <div class="card-desc" style="font-family:monospace;font-size:12px;color:var(--text);line-height:1.7">@Action<br>fun evaluateCredit(<br>&nbsp;&nbsp;application: LoanApplication, // read<br>&nbsp;&nbsp;ai: Ai<br>): CreditScore = ... // write</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          Parameters = what you need from the Blackboard. Return type = what you add to the Blackboard. The framework handles all the reading and writing. You declare intent, not mechanics.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP06</span><br>Chaining actions — zero flow control.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep06-chaining</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

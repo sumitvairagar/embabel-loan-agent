@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP06 — Chaining Actions</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 06</div>
+        <h1 class="anim">Chaining <span class="blue">Actions</span></h1>
+        <p class="subtitle anim">Add a third action. Watch the planner sequence all three automatically.</p>
+      </div>
+    </div>
+
+    <!-- 02: what we're adding -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">What We Add</div>
+        <h2 class="anim"><code>assessRisk</code> — needs <span class="blue">two</span> inputs from the Blackboard</h2>
+        <div class="code-block anim"><span class="an">@Action</span>
+<span class="kw">fun</span> <span class="fn">assessRisk</span>(
+    application: <span class="type">LoanApplication</span>,   <span class="cm">// needs this AND</span>
+    score: <span class="type">CreditScore</span>,              <span class="cm">// needs this</span>
+    ai: <span class="type">Ai</span>,
+): <span class="type">RiskAssessment</span> =              <span class="cm">// produces this</span>
+    ai.withDefaultLlm() <span class="kw">create</span>
+        <span class="str">"""
+        Assess the risk of this loan.
+        Applicant: ${application.applicantName}
+        Amount: ₹${application.amount}
+        Credit score: ${score.score} (${score.rating})
+        
+        Return: approved, riskLevel (Low/Medium/High), reason.
+        """</span>.trimIndent()</div>
+        <div class="callout anim">
+          This action needs <strong>both</strong> LoanApplication and CreditScore on the Blackboard. The planner must run extractApplication and evaluateCredit first. You wrote zero ordering code.
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: how planner sequences -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The GOAP Planner</div>
+        <h2 class="anim">It works <span class="orange">backwards</span> from the goal</h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge orange">1</div>
+            <div class="num-text">Planner asks: <em>what do I need to run assessRisk?</em> → <code>LoanApplication</code> + <code>CreditScore</code></div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge orange">2</div>
+            <div class="num-text"><code>CreditScore</code> not on Blackboard → which action produces it? → <code>evaluateCredit</code></div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge orange">3</div>
+            <div class="num-text"><code>evaluateCredit</code> needs <code>LoanApplication</code> → not on Blackboard → which action produces it? → <code>extractApplication</code></div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge orange">4</div>
+            <div class="num-text"><code>extractApplication</code> needs <code>UserInput</code> → that's the starting input. Plan found.</div>
+          </div>
+        </div>
+        <div class="callout green anim">
+          <strong>Final plan:</strong> extractApplication → evaluateCredit → assessRisk. Computed automatically. Replanned after every step.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: what this means -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Power</div>
+        <h2 class="anim">Add an action. It gets <span class="blue">incorporated automatically.</span></h2>
+        <p class="anim">You added <code>assessRisk</code> and didn't touch a single line of existing code. No pipeline config. No state machine update. No import changes. The planner found its place on its own.</p>
+        <div class="card-grid cols-2 anim">
+          <div class="card red">
+            <div class="card-label">Traditional pipeline</div>
+            <div class="card-desc dark">Add step → edit the pipeline definition → update all state transitions → test everything breaks</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">Embabel GOAP</div>
+            <div class="card-desc dark">Add @Action method → done. Planner incorporates it automatically on next run.</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          This is why the project description says "Superior extensibility and reuse." You extend the system <strong>without editing existing code.</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: demo output -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Demo Output</div>
+        <h2 class="anim">Three actions, <span class="blue">one command</span></h2>
+        <div class="terminal anim"><span class="prompt">shell:></span> execute <span class="str">"My name is Sumit, I need a home loan of 25 lakh"</span>
+
+<span class="step">[extractApplication]</span>  UserInput → LoanApplication ✓
+<span class="step">[evaluateCredit]</span>      LoanApplication → CreditScore ✓
+<span class="step">[assessRisk]</span>          LoanApplication + CreditScore → RiskAssessment ✓
+
+<span class="info">RiskAssessment:</span>
+<span class="info">  approved  = true</span>
+<span class="info">  riskLevel = "Low"</span>
+<span class="info">  reason    = "Good credit history, stable income, reasonable amount"</span></div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP07</span><br>@AchievesGoal — completing the agent.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep07-goal</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

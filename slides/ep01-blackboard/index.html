@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Embabel Series — Ep 01: The Blackboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F9FC;
+  --surface:#FFFFFF;
+  --surface2:#EEF2F8;
+  --border:#D4DEF0;
+  --accent:#1D6FE8;
+  --accent2:#E07B20;
+  --green:#1B9E6E;
+  --red:#D93A3A;
+  --text:#0F1C33;
+  --muted:#5A6E8C;
+  --code-bg:#F0F4FA;
+  --code-border:#D4DEF0;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;overflow:hidden}
+
+#app{display:flex;flex-direction:column;height:100vh;position:relative}
+
+/* progress bar */
+#progress-bar{height:3px;background:var(--border);flex-shrink:0}
+#progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s ease}
+
+/* counter & hint */
+#slide-counter{position:fixed;bottom:20px;right:28px;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);z-index:10}
+#nav-hint{position:fixed;bottom:20px;left:28px;font-size:11px;color:var(--border);letter-spacing:1px;z-index:10;transition:opacity .3s}
+
+#slide-area{flex:1;position:relative;overflow:hidden}
+
+/* slide base */
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 80px;opacity:0;pointer-events:none;transition:opacity .06s;overflow-y:auto}
+.slide.active{opacity:1;pointer-events:all}
+.slide.active .anim{animation:fadeUp .4s ease both}
+.slide.active .anim:nth-child(1){animation-delay:.05s}
+.slide.active .anim:nth-child(2){animation-delay:.12s}
+.slide.active .anim:nth-child(3){animation-delay:.20s}
+.slide.active .anim:nth-child(4){animation-delay:.28s}
+.slide.active .anim:nth-child(5){animation-delay:.36s}
+.slide.active .anim:nth-child(6){animation-delay:.44s}
+.slide.active .anim:nth-child(7){animation-delay:.52s}
+.slide.active .anim:nth-child(8){animation-delay:.60s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.slide-inner{width:100%;max-width:980px;display:flex;flex-direction:column;gap:22px}
+.slide-center .slide-inner{align-items:center;text-align:center}
+
+/* ── Typography ── */
+.overline{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.series-tag{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2)}
+h1{font-size:clamp(32px,4.5vw,58px);font-weight:800;line-height:1.06;letter-spacing:-2px;color:var(--text)}
+h1 .blue{color:var(--accent)} h1 .orange{color:var(--accent2)} h1 .green{color:var(--green)}
+h2{font-size:clamp(20px,2.6vw,32px);font-weight:700;line-height:1.2;letter-spacing:-0.5px;color:var(--text)}
+h2 .blue{color:var(--accent)} h2 .orange{color:var(--accent2)} h2 .green{color:var(--green)} h2 .red{color:var(--red)}
+.subtitle{font-size:clamp(14px,1.6vw,19px);color:var(--muted);line-height:1.65;max-width:680px}
+p{font-size:clamp(13px,1.35vw,16px);line-height:1.85;color:var(--text);max-width:880px}
+p strong{color:var(--accent);font-weight:700}
+p em{color:var(--accent2);font-style:normal;font-weight:600}
+code{background:var(--code-bg);border:1px solid var(--code-border);padding:2px 7px;border-radius:5px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;font-size:12px;color:var(--text)}
+
+/* ── Cards ── */
+.card-grid{display:grid;gap:14px}
+.card-grid.cols-2{grid-template-columns:1fr 1fr}
+.card-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card.blue{border-color:rgba(29,111,232,.35);background:rgba(29,111,232,.04)}
+.card.orange{border-color:rgba(224,123,32,.35);background:rgba(224,123,32,.04)}
+.card.green{border-color:rgba(27,158,110,.35);background:rgba(27,158,110,.04)}
+.card-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.card-value{font-size:clamp(16px,1.8vw,22px);font-weight:800;color:var(--text)}
+.card-value.blue{color:var(--accent)} .card-value.orange{color:var(--accent2)} .card-value.green{color:var(--green)}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.55}
+
+/* ── Code block ── */
+.code-block{background:var(--code-bg);border:1px solid var(--code-border);border-radius:10px;padding:18px 22px;font-family:"SF Mono","Fira Code","Cascadia Code",monospace;font-size:clamp(11px,1vw,13px);line-height:1.75;overflow-x:auto;color:#24292e;white-space:pre;tab-size:4}
+.code-block .kw{color:#d73a49}
+.code-block .fn{color:#6f42c1}
+.code-block .an{color:var(--accent2)}
+.code-block .str{color:#032f62}
+.code-block .cm{color:#6a737d;font-style:italic}
+.code-block .type{color:var(--green)}
+.code-block .num{color:#005cc5}
+
+/* ── Callout ── */
+.callout{background:rgba(29,111,232,.05);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;font-size:14px;line-height:1.65;color:var(--text)}
+.callout.orange{background:rgba(224,123,32,.05);border-color:var(--accent2)}
+.callout.green{background:rgba(27,158,110,.05);border-color:var(--green)}
+.callout strong{color:var(--accent);font-weight:700}
+.callout.orange strong{color:var(--accent2)}
+.callout.green strong{color:var(--green)}
+
+/* ── Num list ── */
+.num-list{display:flex;flex-direction:column;gap:14px}
+.num-item{display:flex;align-items:flex-start;gap:14px}
+.num-badge{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:rgba(29,111,232,.1);border:1.5px solid rgba(29,111,232,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent)}
+.num-badge.orange{background:rgba(224,123,32,.1);border-color:rgba(224,123,32,.35);color:var(--accent2)}
+.num-badge.green{background:rgba(27,158,110,.1);border-color:rgba(27,158,110,.35);color:var(--green)}
+.num-text{font-size:clamp(13px,1.3vw,15px);line-height:1.7;color:var(--text);padding-top:4px}
+.num-text strong{color:var(--accent);font-weight:700}
+.num-text em{color:var(--accent2);font-style:normal;font-weight:600}
+
+/* ── Compare table ── */
+.compare{width:100%;border-collapse:collapse;font-size:14px;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.compare th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border)}
+.compare td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px}
+.compare tr:last-child td{border-bottom:none}
+.compare td:first-child{font-weight:600}
+.compare .blue{color:var(--accent);font-weight:700}
+.compare .orange{color:var(--accent2);font-weight:700}
+
+/* ── Blackboard visual ── */
+.bb-visual{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;overflow:hidden;font-family:"SF Mono","Fira Code",monospace;font-size:13px;background:var(--surface)}
+.bb-header{background:var(--surface2);padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.bb-row{display:flex;align-items:center;border-bottom:1px solid var(--border)}
+.bb-row:last-child{border-bottom:none}
+.bb-idx{width:38px;padding:11px 0 11px 14px;font-size:11px;color:var(--border);font-weight:700;flex-shrink:0}
+.bb-type{width:190px;padding:11px 14px;font-weight:700;flex-shrink:0;font-size:13px}
+.bb-type.blue{color:var(--accent)}
+.bb-type.orange{color:var(--accent2)}
+.bb-type.green{color:var(--green)}
+.bb-type.muted{color:var(--muted);text-decoration:line-through}
+.bb-val{flex:1;padding:11px 14px;color:var(--muted);font-size:12px}
+.bb-tag{padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;margin-left:auto;margin-right:14px;flex-shrink:0}
+.bb-tag.latest{background:rgba(27,158,110,.12);color:var(--green);border:1px solid rgba(27,158,110,.3)}
+.bb-tag.old{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+
+/* ── Roadmap ── */
+.roadmap{display:flex;flex-direction:column;gap:8px}
+.roadmap-item{display:flex;align-items:center;gap:14px;padding:11px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface)}
+.roadmap-item.current{border-color:var(--accent);background:rgba(29,111,232,.05)}
+.roadmap-ep{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);width:40px;flex-shrink:0}
+.roadmap-title{font-size:13.5px;font-weight:600;color:var(--text);flex:1}
+.roadmap-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;flex-shrink:0}
+.roadmap-status.current{background:rgba(29,111,232,.12);color:var(--accent)}
+.roadmap-status.upcoming{background:var(--surface2);color:var(--muted)}
+
+/* ── Tags ── */
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--muted)}
+.tag.blue{background:rgba(29,111,232,.08);border-color:rgba(29,111,232,.25);color:var(--accent)}
+.tag.orange{background:rgba(224,123,32,.08);border-color:rgba(224,123,32,.25);color:var(--accent2)}
+.tag.green{background:rgba(27,158,110,.08);border-color:rgba(27,158,110,.25);color:var(--green)}
+
+/* ── Brand ── */
+.brand-logo{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;box-shadow:0 4px 20px rgba(29,111,232,.25)}
+.end-line{width:50px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.subscribe-badge{display:inline-flex;align-items:center;gap:10px;background:var(--red);border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;color:#fff}
+.divider{height:1px;background:var(--border);width:100%}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01: Series opening -->
+    <div class="slide slide-center active" data-slide="1">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="anim">
+          <div class="series-tag">EngineerInAI — Embabel Series</div>
+          <h1>Building <span class="blue">AI Agents</span><br>on the <span class="orange">JVM</span></h1>
+        </div>
+        <p class="subtitle anim">A Java/Spring developer learning Embabel in public.<br>Real codebase. Real mistakes. Every step documented.</p>
+        <div class="tags anim">
+          <span class="tag blue">Kotlin</span>
+          <span class="tag blue">Spring Boot</span>
+          <span class="tag orange">AI Agents</span>
+          <span class="tag orange">GOAP Planner</span>
+          <span class="tag green">Open Source</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02: What is Embabel -->
+    <div class="slide" data-slide="2">
+      <div class="slide-inner">
+        <div class="overline anim">What is Embabel?</div>
+        <h2 class="anim">Spring AI gives you the <span class="orange">HTTP call.</span><br>Embabel gives you the <span class="blue">brain.</span></h2>
+        <p class="anim">Spring AI is great at making a single call to an LLM — send a prompt, get a response. But it doesn't answer: <em>in what order should I call things? Which model should I use for each step? What happens when a step fails?</em></p>
+        <table class="compare anim">
+          <thead><tr><th>Layer</th><th>What it does</th><th>Analogy</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Spring AI</td>
+              <td>HTTP client to OpenAI / Anthropic / Gemini</td>
+              <td class="blue">Servlet API</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent);font-weight:700">Embabel</td>
+              <td>Plans and sequences steps toward a goal automatically</td>
+              <td class="blue">Spring MVC</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout anim">
+          <strong>Created by Rod Johnson</strong> — the same person who created the original Spring Framework. This is not a weekend project. It's on Maven Central, has 4.5k GitHub stars, and is growing fast.
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: Why learn this codebase -->
+    <div class="slide" data-slide="3">
+      <div class="slide-inner">
+        <div class="overline anim">Why Learn This?</div>
+        <h2 class="anim">What's in it for you as a <span class="blue">Java developer</span></h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge">1</div>
+            <div class="num-text"><strong>You become rare immediately.</strong> People who can implement Embabel in a production Spring Boot app number in the hundreds globally. Every bank and enterprise Java shop is about to need this skill.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">2</div>
+            <div class="num-text"><strong>Right moment, right framework.</strong> Embabel is where Spring Boot was in 2013. The foundation is solid. Enterprise adoption hasn't started yet. You're early.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">3</div>
+            <div class="num-text"><strong>Your Spring knowledge carries over.</strong> No Python. No unlearning. <code>@Agent</code> works like <code>@Controller</code>. <code>@Action</code> works like <code>@RequestMapping</code>. Same idioms, new capability.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">4</div>
+            <div class="num-text"><strong>You can contribute to open source.</strong> The project is active. Issues are well-documented. Maintainers review quickly. Your name in the contributor list is a career asset.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: Series roadmap -->
+    <div class="slide" data-slide="4">
+      <div class="slide-inner">
+        <div class="overline anim">The Series</div>
+        <h2 class="anim">What we cover — <span class="orange">episode by episode</span></h2>
+        <div class="roadmap anim">
+          <div class="roadmap-item current">
+            <div class="roadmap-ep">EP 01</div>
+            <div class="roadmap-title">The Blackboard — how agents share data between steps</div>
+            <div class="roadmap-status current">▶ Today</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 02</div>
+            <div class="roadmap-title">Goals — how the agent knows when it's done</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 03</div>
+            <div class="roadmap-title">Actions & Annotations — @Action, @Agent, @AchievesGoal explained</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 04</div>
+            <div class="roadmap-title">The GOAP Planner — how the sequence is chosen automatically</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 05</div>
+            <div class="roadmap-title">The Execution Loop — plan → run → replan (OODA loop)</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-ep">EP 06+</div>
+            <div class="roadmap-title">Build a real agent + contribute to open source</div>
+            <div class="roadmap-status upcoming">Coming</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: What is an agent run -->
+    <div class="slide" data-slide="5">
+      <div class="slide-inner">
+        <div class="overline anim">Before We Start</div>
+        <h2 class="anim">What actually happens in <span class="blue">one agent run?</span></h2>
+        <p class="anim">Imagine a loan approval system. A user submits an application. Three things need to happen — credit check, risk assessment, final decision. In a normal Spring app you'd write the flow yourself. In Embabel, you don't.</p>
+        <div class="card-grid cols-3 anim">
+          <div class="card blue">
+            <div class="card-label">Step 1</div>
+            <div class="card-value blue" style="font-size:15px">Credit Check</div>
+            <div class="card-desc">Takes LoanApplication → produces CreditScore</div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">Step 2</div>
+            <div class="card-value orange" style="font-size:15px">Risk Assessment</div>
+            <div class="card-desc">Takes CreditScore → produces RiskAssessment</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">Step 3</div>
+            <div class="card-value green" style="font-size:15px">Final Decision</div>
+            <div class="card-desc">Takes RiskAssessment → produces LoanDecision ✓</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          <strong>You never write:</strong> "first do step 1, then step 2, then step 3." You just declare what each step needs and what it produces. The planner figures out the sequence. This episode is about where the data lives between steps — the Blackboard.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: What the actual code looks like -->
+    <div class="slide" data-slide="6">
+      <div class="slide-inner">
+        <div class="overline anim">What the code looks like</div>
+        <h2 class="anim">A complete agent — <span class="blue">three annotations,</span> zero flow control</h2>
+        <p class="anim">This is the entire loan approval agent. No "first do step 1, then step 2" anywhere. Just three annotated methods:</p>
+        <div class="code-block anim"><span class="an">@Agent</span>(<span class="str">description = "Processes loan applications end to end"</span>)
+<span class="kw">class</span> <span class="type">LoanApprovalAgent</span> {
+
+    <span class="an">@Action</span>                                    <span class="cm">// Step 1</span>
+    <span class="kw">fun</span> <span class="fn">evaluateCredit</span>(
+        application: <span class="type">LoanApplication</span>,          <span class="cm">// reads this FROM blackboard</span>
+        ai: <span class="type">Ai</span>
+    ): <span class="type">CreditScore</span> =                          <span class="cm">// writes this TO blackboard</span>
+        ai.withDefaultLlm().createObject(<span class="str">"Evaluate credit for ${application.applicantName}"</span>)
+
+    <span class="an">@Action</span>                                    <span class="cm">// Step 2 — runs after step 1</span>
+    <span class="kw">fun</span> <span class="fn">assessRisk</span>(
+        score: <span class="type">CreditScore</span>                      <span class="cm">// needs CreditScore → planner runs step 1 first</span>
+    ): <span class="type">RiskAssessment</span> =
+        <span class="type">RiskAssessment</span>(score.score > <span class="num">650</span>, <span class="str">"Score based assessment"</span>)
+
+    <span class="an">@AchievesGoal</span>(<span class="str">description = "Produce a final loan decision"</span>)
+    <span class="an">@Action</span>                                    <span class="cm">// Step 3 — the finish line</span>
+    <span class="kw">fun</span> <span class="fn">generateDecision</span>(
+        assessment: <span class="type">RiskAssessment</span>,             <span class="cm">// needs RiskAssessment → planner runs step 2 first</span>
+        ai: <span class="type">Ai</span>
+    ): <span class="type">LoanDecision</span> =                          <span class="cm">// goal achieved when this hits the blackboard</span>
+        ai.withDefaultLlm().createObject(<span class="str">"Generate decision based on: $assessment"</span>)
+}</div>
+        <div class="callout orange anim">
+          <strong>@Agent</strong> marks the class. <strong>@Action</strong> marks each step. <strong>@AchievesGoal</strong> marks the finish line. The planner infers the sequence from parameter types — you write zero ordering logic.
+        </div>
+      </div>
+    </div>
+
+    <!-- 07: What is the Blackboard -->
+    <div class="slide" data-slide="7">
+      <div class="slide-inner">
+        <div class="overline anim">Episode 01 — Concept 1 of 3</div>
+        <h2 class="anim">The Blackboard is the agent's <span class="blue">shared memory</span></h2>
+        <p class="anim">Every step in the agent run reads from and writes to one shared object — the Blackboard. Steps never pass data to each other directly. Everything goes through the board.</p>
+        <div class="callout anim">
+          <strong>Real world analogy:</strong> A whiteboard in a meeting room. The credit team writes the score on it. The risk team reads it. The loan officer reads both and writes the final decision. Nobody hands documents directly — everything goes through the board.
+        </div>
+        <div class="card-grid cols-3 anim">
+          <div class="card blue">
+            <div class="card-label">Scope</div>
+            <div class="card-desc" style="color:var(--text);font-size:14px">One per agent run. Isolated. Never shared across runs.</div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">Thread safety</div>
+            <div class="card-desc" style="color:var(--text);font-size:14px">All operations threadsafe. Multiple steps can run in parallel safely.</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">Immutability</div>
+            <div class="card-desc" style="color:var(--text);font-size:14px">Append-only. Objects are never deleted — only hidden from retrieval.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07: Ordered list visual -->
+    <div class="slide" data-slide="8">
+      <div class="slide-inner">
+        <div class="overline anim">Concept 1 continued</div>
+        <h2 class="anim">Internally it's an <span class="blue">ordered list.</span> Last one wins.</h2>
+        <p class="anim">After the loan agent runs, the Blackboard's <code>objects</code> list looks like this. Each step added one entry:</p>
+        <div class="bb-visual anim">
+          <div class="bb-header">blackboard.objects — insertion order</div>
+          <div class="bb-row">
+            <div class="bb-idx">[0]</div>
+            <div class="bb-type blue">LoanApplication</div>
+            <div class="bb-val">applicantName="Sumit", amount=500000</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[1]</div>
+            <div class="bb-type orange">CreditScore</div>
+            <div class="bb-val">score=750, rating="Good"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[2]</div>
+            <div class="bb-type green">RiskAssessment</div>
+            <div class="bb-val">approved=true, reason="Low risk"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+        </div>
+        <p class="anim" style="font-size:13px;color:var(--muted)">From the actual <strong style="color:var(--text)">Blackboard.kt</strong> source code: <code>fun &lt;T&gt; last(clazz: Class&lt;T&gt;): T?</code> — always returns the last object of a type.</p>
+      </div>
+    </div>
+
+    <!-- 08: Append only -->
+    <div class="slide" data-slide="9">
+      <div class="slide-inner">
+        <div class="overline anim">Concept 1 — Append only</div>
+        <h2 class="anim">Two objects, same type — <span class="green">last wins,</span> old stays</h2>
+        <p class="anim">If a fraud check re-evaluates and adds a new CreditScore, the old one isn't deleted. It's still there — but invisible to retrieval:</p>
+        <div class="bb-visual anim">
+          <div class="bb-header">blackboard.objects after fraud check re-evaluation</div>
+          <div class="bb-row">
+            <div class="bb-idx">[0]</div>
+            <div class="bb-type blue">LoanApplication</div>
+            <div class="bb-val">applicantName="Sumit", amount=500000</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[1]</div>
+            <div class="bb-type muted">CreditScore</div>
+            <div class="bb-val">score=750, rating="Good"</div>
+            <div class="bb-tag old">hidden</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[2]</div>
+            <div class="bb-type orange">RiskAssessment</div>
+            <div class="bb-val">approved=true, reason="Low risk"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+          <div class="bb-row">
+            <div class="bb-idx">[3]</div>
+            <div class="bb-type orange">CreditScore</div>
+            <div class="bb-val">score=690, rating="Fair"</div>
+            <div class="bb-tag latest">latest</div>
+          </div>
+        </div>
+        <div class="callout green anim">
+          <strong>Why keep the old one?</strong> Audit trail. The full history of every run is preserved. You can always see what changed and when. The Blackboard never deletes.
+        </div>
+      </div>
+    </div>
+
+    <!-- 09: String type names -->
+    <div class="slide" data-slide="10">
+      <div class="slide-inner">
+        <div class="overline anim">Concept 2 of 3</div>
+        <h2 class="anim">The planner uses <span class="orange">type names as strings,</span> not classes</h2>
+        <p class="anim">The planner doesn't import your domain classes. It reasons purely with string names. From the actual <strong>Blackboard.kt</strong> source:</p>
+        <div class="code-block anim"><span class="cm">// The planner asks: "does CreditScore exist on the blackboard?"</span>
+<span class="cm">// It passes a plain String — not Class&lt;CreditScore&gt;</span>
+fun hasValue(
+    variable: <span class="type">String</span>,
+    type: <span class="type">String</span>,         <span class="cm">// ← just "CreditScore"</span>
+    dataDictionary: <span class="type">DataDictionary</span>,
+): <span class="type">Boolean</span>
+
+<span class="cm">// satisfiesType() resolves it — also handles inheritance</span>
+fun satisfiesType(boundInstance: <span class="type">Any</span>, type: <span class="type">String</span>): <span class="type">Boolean</span> {
+    <span class="kw">if</span> (boundInstance::class.simpleName == type) <span class="kw">return true</span>
+    val interfaces = findAllSupertypes(boundInstance::class.java)
+    <span class="kw">if</span> (interfaces.any { it.simpleName == type }) <span class="kw">return true</span>
+    <span class="kw">return false</span>
+}</div>
+        <div class="callout anim">
+          <strong>Planning time</strong> → string names only. No real classes needed.<br>
+          <strong>Execution time</strong> → real objects injected into your action parameters.
+        </div>
+      </div>
+    </div>
+
+    <!-- 10: Actions never touch blackboard -->
+    <div class="slide" data-slide="11">
+      <div class="slide-inner">
+        <div class="overline anim">Concept 3 of 3</div>
+        <h2 class="anim">Actions <span class="green">never touch</span> the Blackboard directly</h2>
+        <p class="anim">You declare what you need as parameters and what you produce as return type. The framework handles all the reading and writing.</p>
+        <div class="code-block anim"><span class="an">@Action</span>
+fun evaluateCredit(
+    application: <span class="type">LoanApplication</span>,  <span class="cm">// framework reads this FROM blackboard</span>
+    ai: <span class="type">Ai</span>                           <span class="cm">// framework injects this (NOT from blackboard)</span>
+): <span class="type">CreditScore</span> {                      <span class="cm">// framework writes this TO blackboard</span>
+    <span class="kw">return</span> ai.withDefaultLlm().createObject(
+        <span class="str">"Evaluate credit for ${application.applicantName}, amount: ${application.amount}"</span>
+    )
+}
+
+<span class="cm">// You never write these — the framework does it for you:</span>
+<span class="cm">// val app = blackboard.last(LoanApplication::class.java)</span>
+<span class="cm">// blackboard += creditScore</span></div>
+        <div class="callout orange anim">
+          <strong>Key insight:</strong> If a parameter type doesn't exist on the blackboard yet, the planner finds which action produces it and runs that first — automatically. You write zero sequencing logic.
+        </div>
+      </div>
+    </div>
+
+    <!-- 11: Summary -->
+    <div class="slide" data-slide="12">
+      <div class="slide-inner">
+        <div class="overline anim">Summary — Episode 01</div>
+        <h2 class="anim">3 things to remember about the <span class="blue">Blackboard</span></h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge">1</div>
+            <div class="num-text"><strong>Append-only ordered list.</strong> Objects are never deleted. The last one of each type is the active one. Full history preserved as an audit trail.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">2</div>
+            <div class="num-text"><strong>The planner uses string type names.</strong> Decoupled from your classes. Real objects are only resolved at execution time when the action actually runs.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">3</div>
+            <div class="num-text"><strong>Actions never touch it directly.</strong> Declare parameters → framework reads. Return a value → framework writes. Sequence is inferred from your method signatures.</div>
+          </div>
+        </div>
+        <div class="callout orange anim">
+          <strong>Next episode:</strong> Goals — how the agent knows when it's done, and how the planner works backwards from the goal to build the sequence.
+        </div>
+      </div>
+    </div>
+
+    <!-- 12: Closing -->
+    <div class="slide slide-center" data-slide="13">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <div class="anim">
+          <div class="series-tag">EngineerInAI — Embabel Series</div>
+          <h2>Next up: <span class="blue">Goals</span><br>How the agent knows when it's done.</h2>
+        </div>
+        <div class="tags anim">
+          <span class="tag blue">Episode 02 → Goals</span>
+          <span class="tag orange">Code in description</span>
+          <span class="tag green">Questions in comments</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 13</div>
+  <div id="nav-hint">← → or Space to navigate</div>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const fill = document.getElementById('progress-fill');
+const counter = document.getElementById('slide-counter');
+const hint = document.getElementById('nav-hint');
+let current = 0;
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(slides.length - 1, n));
+  slides[current].classList.add('active');
+  fill.style.width = ((current + 1) / slides.length * 100).toFixed(1) + '%';
+  counter.textContent = (current + 1) + ' / ' + slides.length;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length - 1);
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) show(dx < 0 ? current + 1 : current - 1);
+});
+
+setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+show(0);
+</script>
+</body>
+</html>

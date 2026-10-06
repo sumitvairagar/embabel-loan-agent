@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP02 — Project Setup</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01: Brand opener -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 02</div>
+        <h1 class="anim">Project <span class="blue">Setup</span></h1>
+        <p class="subtitle anim">Spring Boot + Embabel running in under 5 minutes.</p>
+      </div>
+    </div>
+
+    <!-- 02: What we need -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Prerequisites</div>
+        <h2 class="anim">What you need <span class="blue">before we start</span></h2>
+        <div class="card-grid cols-2 anim">
+          <div class="card blue">
+            <div class="card-label">Java 21+</div>
+            <div class="card-desc dark">Check: <code>java -version</code></div>
+          </div>
+          <div class="card blue">
+            <div class="card-label">Maven 3.9+</div>
+            <div class="card-desc dark">Check: <code>mvn -version</code></div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">OpenAI API Key</div>
+            <div class="card-desc dark">Set: <code>export OPENAI_API_KEY=sk-...</code></div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">IntelliJ IDEA</div>
+            <div class="card-desc dark">Community edition is fine</div>
+          </div>
+        </div>
+        <div class="callout anim">
+          <strong>Clone the repo:</strong> <code>git clone https://github.com/sumitvairagar/embabel-loan-agent</code><br>
+          Then: <code>git checkout ep02-setup</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: pom.xml -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The pom.xml</div>
+        <h2 class="anim">Three dependencies. <span class="blue">That's it.</span></h2>
+        <div class="code-block anim"><span class="cm">&lt;!-- Spring Boot parent provides Kotlin + Spring Boot versions --&gt;</span>
+<span class="key">&lt;parent&gt;</span>
+    <span class="key">&lt;groupId&gt;</span>org.springframework.boot<span class="key">&lt;/groupId&gt;</span>
+    <span class="key">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="key">&lt;/artifactId&gt;</span>
+    <span class="key">&lt;version&gt;</span>3.4.5<span class="key">&lt;/version&gt;</span>
+<span class="key">&lt;/parent&gt;</span>
+
+<span class="cm">&lt;!-- Embabel BOM manages all Embabel versions --&gt;</span>
+<span class="key">&lt;dependency&gt;</span>
+    <span class="key">&lt;groupId&gt;</span>com.embabel.agent<span class="key">&lt;/groupId&gt;</span>
+    <span class="key">&lt;artifactId&gt;</span><span class="str">embabel-agent-starter</span><span class="key">&lt;/artifactId&gt;</span>     <span class="cm">&lt;!-- core --&gt;</span>
+<span class="key">&lt;/dependency&gt;</span>
+<span class="key">&lt;dependency&gt;</span>
+    <span class="key">&lt;artifactId&gt;</span><span class="str">embabel-agent-starter-shell</span><span class="key">&lt;/artifactId&gt;</span>   <span class="cm">&lt;!-- CLI --&gt;</span>
+<span class="key">&lt;/dependency&gt;</span>
+<span class="key">&lt;dependency&gt;</span>
+    <span class="key">&lt;artifactId&gt;</span><span class="str">embabel-agent-starter-openai</span><span class="key">&lt;/artifactId&gt;</span>  <span class="cm">&lt;!-- OpenAI --&gt;</span>
+<span class="key">&lt;/dependency&gt;</span></div>
+        <div class="callout orange anim">
+          The Embabel BOM (Bill of Materials) manages all version numbers. You declare the BOM version once and all Embabel dependencies inherit it — no version conflicts.
+        </div>
+      </div>
+    </div>
+
+    <!-- 04: application.yml -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Configuration</div>
+        <h2 class="anim">application.yml — <span class="blue">minimal config</span></h2>
+        <div class="code-block anim">spring:
+  ai:
+    openai:
+      api-key: <span class="str">${OPENAI_API_KEY}</span>   <span class="cm"># reads from environment variable</span>
+      chat:
+        options:
+          model: <span class="str">gpt-4o-mini</span>        <span class="cm"># cheap and fast for dev</span>
+
+embabel:
+  agent:
+    platform:
+      log-prompts: <span class="num">false</span>           <span class="cm"># set true to see full prompts</span>
+      log-responses: <span class="num">false</span>         <span class="cm"># set true to see LLM responses</span>
+
+logging:
+  level:
+    com.embabel: INFO
+    com.engineerinai: INFO          <span class="cm"># our app logs</span></div>
+        <div class="callout anim">
+          <strong>Never hardcode your API key.</strong> Use <code>${OPENAI_API_KEY}</code> — reads the environment variable at startup. Add the key to your IntelliJ run configuration under Environment Variables.
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: main class -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Entry Point</div>
+        <h2 class="anim">The main class — <span class="blue">standard Spring Boot</span></h2>
+        <div class="code-block anim"><span class="an">@SpringBootApplication</span>
+<span class="kw">class</span> <span class="type">LoanAgentApplication</span>
+
+<span class="kw">fun</span> <span class="fn">main</span>(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;) {
+    runApplication&lt;<span class="type">LoanAgentApplication</span>&gt;(*args)
+}
+
+<span class="cm">// That's the entire main class.
+// Embabel discovers your @Agent classes automatically
+// via Spring's classpath scanning — same as @Controller.</span></span></div>
+        <div class="callout orange anim">
+          <strong>Kotlin note:</strong> <code>*args</code> is the spread operator. It expands an array into varargs — equivalent to Java's <code>String... args</code>. You'll see this pattern in every Spring Boot Kotlin app.
+        </div>
+      </div>
+    </div>
+
+    <!-- 06: run it -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Run It</div>
+        <h2 class="anim">Start the shell — <span class="green">you should see this</span></h2>
+        <div class="terminal anim"><span class="prompt">$</span> mvn spring-boot:run
+
+<span class="info">  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \</span>
+
+<span class="step">  :: Embabel Agent Platform ::</span>
+<span class="info">  Registered agent: LoanApprovalAgent</span>
+<span class="info">  Platform ready. 1 agent, 0 goals achieved so far.</span>
+
+<span class="prompt">shell:></span> <span class="result">_</span></div>
+        <div class="callout green anim">
+          You're in the Spring Shell. Type <code>help</code> to see available commands. Next episode we add our first @Agent class and run it from here.
+        </div>
+      </div>
+    </div>
+
+    <!-- 07: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <h2 class="anim">Next: <span class="blue">EP03</span><br>Domain model — Kotlin data classes.</h2>
+        <div class="tags anim">
+          <span class="tag blue">github.com/sumitvairagar/embabel-loan-agent</span>
+          <span class="tag orange">branch: ep03-domain-model</span>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 7</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>

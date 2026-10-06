@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EP08 — Unit Testing</title>
+<link rel="stylesheet" href="../shared.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="slide-area">
+
+    <!-- 01 -->
+    <div class="slide slide-center active">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="ep-tag anim">Episode 08</div>
+        <h1 class="anim">Unit <span class="blue">Testing</span></h1>
+        <p class="subtitle anim">Test your agent without calling a real LLM. Zero API cost. Zero network.</p>
+      </div>
+    </div>
+
+    <!-- 02: why test -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Why Test</div>
+        <h2 class="anim">AI agents need tests <span class="orange">more</span> than regular code</h2>
+        <div class="num-list anim">
+          <div class="num-item">
+            <div class="num-badge">1</div>
+            <div class="num-text"><strong>Prompts are code.</strong> If your prompt doesn't include the applicant's name, the LLM can't make a good decision. Test that the prompt contains what it should.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">2</div>
+            <div class="num-text"><strong>Regressions are invisible.</strong> A prompt change that looks harmless might silently degrade output quality. Tests catch this before it reaches production.</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge">3</div>
+            <div class="num-text"><strong>Fast feedback loop.</strong> Running a real LLM call costs money and takes seconds. Unit tests run in milliseconds, free, offline.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03: FakeOperationContext -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">The Tool</div>
+        <h2 class="anim"><code>FakeOperationContext</code> — <span class="blue">a fake Ai for tests</span></h2>
+        <div class="code-block anim"><span class="cm">// Create a fake Ai that captures all LLM calls</span>
+<span class="kw">val</span> context = <span class="type">FakeOperationContext</span>()
+
+<span class="cm">// Tell it what to return when createObject is called</span>
+context.expectResponse(<span class="type">CreditScore</span>(<span class="num">750</span>, <span class="str">"Good"</span>, listOf(<span class="str">"stable income"</span>)))
+
+<span class="cm">// Call the action directly — no Spring, no LLM, no network</span>
+<span class="kw">val</span> application = <span class="type">LoanApplication</span>(<span class="str">"Sumit"</span>, <span class="num">2500000</span>, <span class="str">"home"</span>)
+agent.evaluateCredit(application, context)   <span class="cm">// ← context IS the Ai</span>
+
+<span class="cm">// Inspect what prompt was sent to the LLM</span>
+<span class="kw">val</span> prompt = context.llmInvocations.first().prompt
+assertTrue(prompt.contains(<span class="str">"Sumit"</span>))
+assertTrue(prompt.contains(<span class="str">"2500000"</span>))</div>
+      </div>
+    </div>
+
+    <!-- 04: test structure -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Test Structure</div>
+        <h2 class="anim">What to test in <span class="blue">every action</span></h2>
+        <div class="card-grid cols-3 anim">
+          <div class="card blue">
+            <div class="card-label">Prompt content</div>
+            <div class="card-desc dark">Does the prompt contain the applicant's name? The loan amount? The credit score? If not, the LLM can't do its job.</div>
+          </div>
+          <div class="card orange">
+            <div class="card-label">No tool groups</div>
+            <div class="card-desc dark">Verify that pure LLM-transform actions don't accidentally request web search tools — that would add cost and latency.</div>
+          </div>
+          <div class="card green">
+            <div class="card-label">LLM model choice</div>
+            <div class="card-desc dark">Does the action use the default model or request a specific one? Verify the hyperparameters are what you intended.</div>
+          </div>
+        </div>
+        <div class="callout anim">
+          <strong>Key principle:</strong> You're not testing what the LLM returns. You're testing what you <em>send</em> to the LLM. That's in your control. The LLM's response is not.
+        </div>
+      </div>
+    </div>
+
+    <!-- 05: real test -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="overline anim">Real Test</div>
+        <h2 class="anim">From the actual <span class="blue">test file</span></h2>
+        <div class="code-block anim"><span class="kw">class</span> <span class="type">LoanApprovalAgentTest</span> {
+
+    <span class="kw">private val</span> agent = <span class="type">LoanApprovalAgent</span>()
+
+    <span class="an">@Nested</span>
+    <span class="kw">inner class</span> <span class="str">`evaluateCredit prompt`</span> {
+
+        <span class="an">@Test</span>
+        <span class="kw">fun</span> <span class="str">`must contain applicant name`</span>() {
+            <span class="kw">val</span> context = <span class="type">FakeOperationContext</span>()
+            context.expectResponse(<span class="type">CreditScore</span>(<span class="num">750</span>, <span class="str">"Good"</span>, listOf()))
+
+            <span class="kw">val</span> application = <span class="type">LoanApplication</span>(<span class="str">"Sumit Vairagar"</span>, <span class="num">2500000</span>, <span class="str">"home"</span>)
+            agent.evaluateCredit(application, context)
+
+            <span class="kw">val</span> prompt = context.llmInvocations.first().prompt
+            assertTrue(prompt.contains(<span class="str">"Sumit Vairagar"</span>))
+        }
+    }
+}</div>
+      </div>
+    </div>
+
+    <!-- 06: Closing -->
+    <div class="slide slide-center">
+      <div class="slide-inner">
+        <div class="brand-logo anim">E</div>
+        <div class="end-line anim"></div>
+        <div class="anim">
+          <div class="series-tag">EngineerInAI — Embabel Series</div>
+          <h2>Series complete. <span class="blue">You built a production-ready<br>AI agent from scratch.</span></h2>
+        </div>
+        <div class="num-list anim" style="text-align:left;max-width:500px">
+          <div class="num-item">
+            <div class="num-badge green">✓</div>
+            <div class="num-text">Domain model, actions, goal — all working</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge green">✓</div>
+            <div class="num-text">Zero flow control code — planner handles sequencing</div>
+          </div>
+          <div class="num-item">
+            <div class="num-badge green">✓</div>
+            <div class="num-text">Unit tested — no real LLM, no API cost</div>
+          </div>
+        </div>
+        <div class="subscribe-badge anim">▶ @EngineerInAI — Subscribe</div>
+      </div>
+    </div>
+
+  </div>
+  <div id="slide-counter">1 / 6</div>
+  <div id="nav-hint">← → or Space</div>
+</div>
+<script src="../nav.js"></script>
+</body>
+</html>
