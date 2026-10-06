@@ -11,9 +11,12 @@ spring:
 embabel:
   agent:
     platform:
-      log-prompts: false
-      log-responses: false
+      log-prompts: false      # set to true to see full prompts
+      log-responses: false    # set to true to see full LLM responses
 
 logging:
   level:
     com.embabel: INFO
+    com.engineerinai: INFO    # shows our BlackboardLogger output
+  pattern:
+    console: "%d{HH:mm:ss} %highlight(%-5level) %cyan(%-30logger{30}) - %msg%n"
