@@ -1,7 +1,6 @@
 package com.engineerinai.loan.debug
 
-import com.embabel.agent.api.event.ActionExecutedEvent
-import com.embabel.agent.core.Blackboard
+import com.embabel.agent.event.ActionExecutionStartEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -9,11 +8,11 @@ import org.springframework.stereotype.Component
 /**
  * EP05: Blackboard Logger
  *
- * Listens for action execution events and prints the current
- * blackboard contents after each action runs.
+ * Listens for action start events and prints the current
+ * blackboard contents before each action runs.
  *
- * This makes the Blackboard visible — you can see exactly what
- * objects exist and in what order after every step.
+ * AgentProcess extends Blackboard directly — so we can call
+ * .objects on it without going through a separate blackboard field.
  *
  * Remove this in production. It's a learning tool.
  */
@@ -23,12 +22,12 @@ class BlackboardLogger {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @EventListener
-    fun onActionExecuted(event: ActionExecutedEvent) {
-        val blackboard: Blackboard = event.agentProcess.blackboard
-        logger.info("=== Blackboard after [{}] ===", event.action.name)
-        blackboard.objects.forEachIndexed { index, obj ->
-            logger.info("  [{}] {} = {}", index, obj::class.simpleName, obj)
+    fun onActionStart(event: ActionExecutionStartEvent) {
+        val process = event.agentProcess
+        logger.info("=== Blackboard before [{}] ===", event.action.name)
+        process.objects.forEachIndexed { index, obj ->
+            logger.info("  [{}] {}: {}", index, obj::class.simpleName, obj)
         }
-        logger.info("==============================")
+        logger.info("================================")
     }
 }
