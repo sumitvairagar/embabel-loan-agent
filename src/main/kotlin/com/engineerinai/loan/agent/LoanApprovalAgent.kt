@@ -1,49 +1,44 @@
 package com.engineerinai.loan.agent
 
+import com.embabel.agent.api.annotation.AchievesGoal
 import com.embabel.agent.api.annotation.Action
 import com.embabel.agent.api.annotation.Agent
 import com.embabel.agent.api.common.Ai
+import com.embabel.agent.api.common.create
 import com.embabel.agent.domain.io.UserInput
 import com.engineerinai.loan.domain.CreditScore
 import com.engineerinai.loan.domain.LoanApplication
+import com.engineerinai.loan.domain.LoanDecision
+import com.engineerinai.loan.domain.RiskAssessment
 
 /**
- * Loan approval agent — built step by step across the series.
+ * Loan approval agent — complete as of EP07.
  *
- * EP04: First @Action only — evaluateCredit
- * EP06: Second @Action added — assessRisk
- * EP07: @AchievesGoal added — generateDecision (completes the agent)
+ * Full flow:
+ *   UserInput → extractApplication → LoanApplication
+ *   LoanApplication → evaluateCredit → CreditScore
+ *   LoanApplication + CreditScore → assessRisk → RiskAssessment
+ *   LoanApplication + RiskAssessment → generateDecision → LoanDecision ✓ GOAL
+ *
+ * The planner sequences all four actions automatically.
+ * You wrote zero flow control code.
  */
 @Agent(description = "Processes loan applications and produces a credit decision")
 class LoanApprovalAgent {
 
-    /**
-     * Action 1: Extract a structured LoanApplication from free text.
-     *
-     * The LLM reads the user's message and fills in the LoanApplication
-     * data class. No parsing code needed — Embabel generates the JSON
-     * schema from the data class and instructs the LLM to populate it.
-     */
     @Action
     fun extractApplication(userInput: UserInput, ai: Ai): LoanApplication =
-        ai.withDefaultLlm().createObject(
+        ai.withDefaultLlm() create
             """
             Extract a loan application from this user message.
             Pull out: applicant name, loan amount (in rupees), and purpose.
             
             User message: ${userInput.content}
             """.trimIndent()
-        )
 
-    /**
-     * Action 2: Evaluate the applicant's credit.
-     *
-     * Takes LoanApplication from the blackboard (written by extractApplication).
-     * The planner sequences these automatically — no ordering code needed.
-     */
     @Action
     fun evaluateCredit(application: LoanApplication, ai: Ai): CreditScore =
-        ai.withDefaultLlm().createObject(
+        ai.withDefaultLlm() create
             """
             Evaluate the credit profile for this loan application.
             
@@ -54,5 +49,49 @@ class LoanApprovalAgent {
             Assign a credit score (300–900), a rating (Excellent/Good/Fair/Poor),
             and list 2-3 key factors that influenced the score.
             """.trimIndent()
-        )
+
+    @Action
+    fun assessRisk(
+        application: LoanApplication,
+        score: CreditScore,
+        ai: Ai,
+    ): RiskAssessment =
+        ai.withDefaultLlm() create
+            """
+            Assess the risk of approving this loan.
+            
+            Applicant: ${application.applicantName}
+            Loan amount: ₹${application.amount}
+            Purpose: ${application.purpose}
+            Credit score: ${score.score} (${score.rating})
+            Credit factors: ${score.factors.joinToString(", ")}
+            
+            Determine: approved (true/false), risk level (Low/Medium/High),
+            and the main reason for the decision.
+            """.trimIndent()
+
+    /**
+     * The final action — @AchievesGoal marks the finish line.
+     * When LoanDecision hits the blackboard, the agent is complete.
+     */
+    @AchievesGoal(description = "Produce a final loan decision for the applicant")
+    @Action
+    fun generateDecision(
+        application: LoanApplication,
+        assessment: RiskAssessment,
+        ai: Ai,
+    ): LoanDecision =
+        ai.withDefaultLlm() create
+            """
+            Generate a final loan decision letter.
+            
+            Applicant: ${application.applicantName}
+            Loan amount: ₹${application.amount}
+            Purpose: ${application.purpose}
+            Risk assessment: ${assessment.riskLevel} risk, approved=${assessment.approved}
+            Reason: ${assessment.reason}
+            
+            Write a clear decision (approved/rejected), a friendly message,
+            and 2-3 concrete next steps for the applicant.
+            """.trimIndent()
 }
