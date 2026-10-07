@@ -7,11 +7,12 @@ import com.embabel.agent.api.common.create
 import com.embabel.agent.domain.io.UserInput
 import com.engineerinai.loan.domain.CreditScore
 import com.engineerinai.loan.domain.LoanApplication
+import com.engineerinai.loan.domain.RiskAssessment
 
 /**
- * EP04: Two actions only.
- * extractApplication + evaluateCredit.
- * No goal yet — we add that in EP07.
+ * EP06: Three actions.
+ * The planner chains them automatically — zero ordering code.
+ * @AchievesGoal added in EP07.
  */
 @Agent(description = "Processes loan applications and produces a credit decision")
 class LoanApprovalAgent {
@@ -38,5 +39,25 @@ class LoanApprovalAgent {
             
             Assign a credit score (300–900), a rating (Excellent/Good/Fair/Poor),
             and list 2-3 key factors that influenced the score.
+            """.trimIndent()
+
+    @Action
+    fun assessRisk(
+        application: LoanApplication,
+        score: CreditScore,
+        ai: Ai,
+    ): RiskAssessment =
+        ai.withDefaultLlm() create
+            """
+            Assess the risk of approving this loan.
+            
+            Applicant: ${application.applicantName}
+            Loan amount: ₹${application.amount}
+            Purpose: ${application.purpose}
+            Credit score: ${score.score} (${score.rating})
+            Credit factors: ${score.factors.joinToString(", ")}
+            
+            Determine: approved (true/false), risk level (Low/Medium/High),
+            and the main reason for the decision.
             """.trimIndent()
 }
